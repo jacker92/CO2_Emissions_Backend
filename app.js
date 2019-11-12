@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
+// Routers
 var populationRouter = require('./routes/populationController');
 var co2Router = require('./routes/co2Controller');
 
