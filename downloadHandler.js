@@ -40,15 +40,15 @@ const removeUnnecessaryLines = (path) => {
     debug("File writed to disc.");
 }
 
-const ExtractFiles = async () => {
-     extract("data.zip", { dir: resolve("./data") }, async (err) => {
+const ExtractFiles = async (filename) => {
+     extract(filename, { dir: resolve("./data") }, async (err) => {
         if (err) {
             debug(err);
             process.exit(1);
         }
         debug("Files extracted.");
         debug("Deleting zip file.");
-        fs.unlinkSync("data.zip");
+        fs.unlinkSync(filename);
         debug("Zip file deleted.");
 
         debug("Reading files.");
@@ -59,21 +59,28 @@ const ExtractFiles = async () => {
             if (file.startsWith("Metadata")) {
                 debug("Deleting file " + file + ".");
                 fs.unlinkSync(resolve("./data/" + file));
-            } else {
-                debug("Renaming file " + file + ".");
-                fs.renameSync(resolve("./data/" + file), resolve("./data/data.csv"));
+            } else if (file != "population.csv" && file != "co2.csv"){
+                debug("Renaming file " + file + " to " + filename.split('.')[0] + ".csv.");
+                fs.renameSync(resolve("./data/" + file), resolve("./data/" + filename.split('.')[0] + ".csv"));
             }
         });
-        removeUnnecessaryLines(resolve("./data/data.csv"));
+        removeUnnecessaryLines(resolve("./data/" + filename.split('.')[0] + ".csv"));
+    });
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve('resolved');
+        }, 5000);
     });
 }
 
 const StartDownload = async () => {
     console.log("In start download!");
-    await download("http://api.worldbank.org/v2/en/indicator/SP.POP.TOTL?downloadformat=csv", "data.zip");
+    await download("http://api.worldbank.org/v2/en/indicator/SP.POP.TOTL?downloadformat=csv", "population.zip");
+    await download("http://api.worldbank.org/v2/en/indicator/EN.ATM.CO2E.KT?downloadformat=csv", "co2.zip")
 
     debug("Return from download function!");
-    await ExtractFiles();
+    await ExtractFiles("population.zip");
+    await ExtractFiles("co2.zip");
     debug("Return from Extract function!");
     return new Promise(resolve => {
         setTimeout(() => {
