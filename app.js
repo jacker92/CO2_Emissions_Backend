@@ -6,6 +6,7 @@ var logger = require('morgan');
 var cors = require('cors');
 
 var populationRouter = require('./routes/populationController');
+var co2Router = require('./routes/co2Controller');
 
 // Start by requiring these scripts.
 var handler = require('./downloadHandler.js');
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/population', populationRouter);
+app.use('/api/co2', co2Router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
